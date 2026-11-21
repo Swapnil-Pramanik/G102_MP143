@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+*.egg-info/
+
+# MLflow model-file folders (mlflow.db IS committed)
+mlruns/
+mlartifacts/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/

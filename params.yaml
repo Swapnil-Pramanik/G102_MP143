@@ -1,0 +1,32 @@
+# Project settings. Read in code with yaml.safe_load (see src/ev_energy/config.py).
+data:
+  train: data/raw/train.csv
+  later: data/raw/later.csv
+  holdout: data/raw/holdout_features.csv
+  date_column: date
+  id_column: record_id
+  target: energy_kwh
+  group_column: station_type
+
+features:
+  numeric: [battery_start_pct, session_minutes, charger_kw, temp_c, vehicle_age_yr, queue_before]
+  categorical: [vehicle, station_type]
+
+mlflow:
+  tracking_uri: sqlite:///mlflow.db
+  experiment_name: mp143-ev-energy
+  registered_model_name: mp143-ev-energy-model
+
+train:
+  random_state: 42
+  test_size: 0.2
+
+monitoring:
+  psi_bins: 10
+  later_train_fraction: 0.7
+  promotion_min_improvement: 0.10   # v2 must beat v1's MAE by >= 10%
+
+paths:
+  model: models/model.joblib
+  predictions: predictions/holdout_predictions.csv
+  findings: reports/findings.yaml
