@@ -52,13 +52,15 @@ All code reads settings from params.yaml via src/ev_energy/config.py.
 ```
 README.md                      this file
 requirements.txt               runtime + test libs, all pinned (used by CI and Docker)
-requirements-dev.txt           requirements.txt + dvc (local only)
+requirements-dev.txt           requirements.txt + dvc + dvc-gdrive (local only)
 params.yaml                    paths, feature lists, MLflow names, monitoring settings
 pytest.ini                     puts src/ and repo root on the import path for tests
 Dockerfile                     python:3.12-slim, deps first, EXPOSE 8000, uvicorn
 .dockerignore                  keeps data, venv, mlflow, tests out of the image
 .gitignore                     venv, caches, mlruns/ mlartifacts/ (mlflow.db is committed)
-.dvc/config, .dvcignore        from `dvc init`
+.dvc/config, .dvcignore        from `dvc init`; config also holds the `gdrive` remote
+                               (Drive folder id + OAuth client id)
+.dvc/config.local              (not in git) each member's gdrive_client_secret
 .github/workflows/ci.yml       on push / PR: install requirements.txt, run pytest
 docs/
   STUDENT_HANDBOOK.md          course rules, marks, layout
@@ -123,7 +125,9 @@ container port 8000 · service port 80 · readiness + liveness on `/health`
 ```bash
 uv venv --python 3.12 .venv && source .venv/bin/activate
 uv pip install -r requirements-dev.txt
-dvc status                      # data/raw/train.csv & later.csv are DVC-tracked
+dvc remote modify --local gdrive gdrive_client_secret '<secret from the team>'
+dvc pull                        # downloads train.csv & later.csv from Google Drive
+dvc status                      # "up to date" = your CSVs match the committed pointers
 pytest                          # once tests exist
 PYTHONPATH=src uvicorn app.main:app --reload   # needs models/model.joblib for /predict
 docker build -t mp143-api:1.0 .
@@ -138,9 +142,17 @@ docker build -t mp143-api:1.0 .
 
 pandas 3.1.1 · numpy 2.5.5 · scikit-learn 1.9.1 · mlflow 3.18.0 · fastapi 0.165.0 ·
 uvicorn 0.54.0 · pydantic 2.14.4 · pyyaml 6.0.4 · joblib 1.6.0 ·
-python-json-logger 4.2.0 · httpx 0.28.1 · pytest 9.2.0 · (dev) dvc 3.67.1.
+python-json-logger 4.2.0 · httpx 0.28.1 · pytest 9.2.0 · (dev) dvc 3.67.1, dvc-gdrive 3.0.1.
 
 ## Configuration
 
-All settings live in `params.yaml`; no secrets or env vars are needed. MLflow tracks
+All settings live in `params.yaml`; no env vars are needed. MLflow tracks
 to `sqlite:///mlflow.db` in the repo root.
+
+**DVC remote (Google Drive).** `train.csv` and `later.csv` live in a shared Google
+Drive folder (remote `gdrive`, the default). The folder id and the Google Cloud OAuth
+client id are in `.dvc/config` (committed). The **client secret is the only secret**:
+keep it in `.dvc/config.local` (git-ignored by `.dvc/.gitignore`) and share it
+privately — never commit it. The first `dvc push`/`dvc pull` opens a browser login;
+your Google account must be a "test user" on the OAuth consent screen and have
+access to the Drive folder.
