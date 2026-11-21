@@ -24,15 +24,15 @@ Every member commits from their **own** GitHub account.
 
 ## Status
 
-Scaffold only. Folder layout, DVC, config, Docker, CI and Kubernetes files are in
-place; data checks, cleaning, training, API, tests, monitoring and predictions are
-still TODO.
+Folder layout, DVC, config, Docker, CI, Kubernetes files and the FastAPI app are in
+place; data checks, cleaning, training, tests, monitoring and predictions are
+still TODO. The API needs `models/model.joblib` (from training) to serve real predictions.
 
 | Stage (handbook §6) | Status |
 |---|---|
 | 1. Repo, README, DVC, find the 7 data problems | DVC done; data checks TODO |
 | 2. Cleaning, MLflow training (3+ runs), registry `@champion`, tests | TODO |
-| 3. FastAPI + rules, Dockerfile, green CI, k8s, JSON logs | Dockerfile / CI / k8s written; app TODO |
+| 3. FastAPI + rules, Dockerfile, green CI, k8s, JSON logs | App, Dockerfile, CI, k8s, JSON logs written; tests TODO |
 | 4. PSI, MAE per group, v2 retrain, promotion rule, holdout predictions | TODO |
 
 ## Architecture
@@ -74,6 +74,7 @@ data/raw/
 src/ev_energy/
   __init__.py
   config.py                    load_params(): yaml.safe_load(params.yaml)
+  logging_config.py            get_logger(): JSON lines to stdout (python-json-logger)
   data_checks.py               TODO: detect the 7 data problems
   cleaning.py                  TODO: clean train.csv
   train.py                     TODO: MLflow runs, register, @champion
@@ -81,7 +82,8 @@ src/ev_energy/
   predict.py                   TODO: holdout predictions
 app/
   __init__.py
-  main.py                      TODO: FastAPI POST /predict, GET /health
+  main.py                      FastAPI: SessionIn schema, GET /health, POST /predict;
+                               model loaded lazily via get_model() (tests can set app.main.MODEL)
 tests/
   __init__.py                  TODO: 3+ test_*.py, one with TestClient
 models/                        model.joblib (champion) goes here
@@ -101,10 +103,14 @@ Target: `energy_kwh`. Ids/dates: `record_id`, `date`. Group column: `station_typ
 
 ## API contract (PROBLEM.md §5)
 
-- `POST /predict` — body has exactly the 8 features. Rules in the pydantic schema:
-  `charger_kw` ≤ 100, `session_minutes` ≥ 5 → otherwise 422.
-- `GET /health` → `{"status": "ok"}`.
-- One JSON log line per prediction to stdout.
+- `POST /predict` — body `SessionIn` has exactly the 8 features (`extra="forbid"`,
+  so unknown keys are also 422). Client rules: `charger_kw` ≤ 100, `session_minutes` ≥ 5.
+  Extra sanity limits: `battery_start_pct` 0–100, `charger_kw` > 0, `temp_c` −50–60,
+  `vehicle_age_yr` 0–50, `queue_before` ≥ 0 (int), `vehicle` / `station_type` non-empty str.
+  Response: `{"energy_kwh": float}`.
+- `GET /health` → `{"status": "ok", "model_path": "models/model.joblib"}`.
+- One JSON log line per prediction to stdout: `request_id`, `prediction`,
+  `latency_ms`, `vehicle`, `station_type` (no personal details).
 
 ## Deployment (PROBLEM.md §6)
 
@@ -119,7 +125,7 @@ uv venv --python 3.12 .venv && source .venv/bin/activate
 uv pip install -r requirements-dev.txt
 dvc status                      # data/raw/train.csv & later.csv are DVC-tracked
 pytest                          # once tests exist
-uvicorn app.main:app --reload   # once app/main.py is written
+PYTHONPATH=src uvicorn app.main:app --reload   # needs models/model.joblib for /predict
 docker build -t mp143-api:1.0 .
 ```
 
