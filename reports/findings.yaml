@@ -27,8 +27,8 @@ data_issues:
   stuck_sensor:
     present: True
     column: battery_start_pct  # the column that sent the same reading for weeks
-    start_date: 2026-02-27       # first date with the stuck value, YYYY-MM-DD
-    end_date: 2026-03-15         # last date with the stuck value, YYYY-MM-DD
+    start_date: "2026-02-27"       # first date with the stuck value, YYYY-MM-DD
+    end_date: "2026-03-15"         # last date with the stuck value, YYYY-MM-DD
   target_typos:
     present: True
     count: 14            # rows whose target was typed 10 times too big

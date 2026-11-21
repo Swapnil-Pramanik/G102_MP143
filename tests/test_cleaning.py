@@ -95,7 +95,7 @@ def test_clean_fixes_spelling(monkeypatch):
         "spelling_variants",
         {"column": "station_type", "levels": ["Mall", "Highway", "Residential"]},
     )
-    df = pd.concat([tiny_df()] * 2, ignore_index=True)
+    df = pd.concat([tiny_df()] * 3, ignore_index=True)
     df["record_id"] = [f"R{i}" for i in range(len(df))]
     df["energy_kwh"] = range(10, 10 + len(df))     # make rows different (no duplicates)
     df.loc[3, "station_type"] = "mall "
