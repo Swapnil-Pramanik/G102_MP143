@@ -10,12 +10,12 @@ data_issues:
   # If present is false, leave the other values as null.
   leaking_column:
     present: False
-    column: None           # the column that must not be used as a feature
+    column: null           # the column that must not be used as a feature
   unit_mixup:
     present: False
-    column: None           # the column recorded in a different unit
-    group_value: None      # the value of station_type whose rows are affected
-    factor: None           # wrong value = right value x factor
+    column: null           # the column recorded in a different unit
+    group_value: null      # the value of station_type whose rows are affected
+    factor: null           # wrong value = right value x factor
   sentinel_value:
     present: True
     column: vehicle_age_yr  # the column with the sentinel
@@ -34,8 +34,8 @@ data_issues:
     count: 14            # rows whose target was typed 10 times too big
   spelling_variants:
     present: False
-    column: None           # the column with the spelling variants
-    true_levels: None      # how many real categories there are after cleaning
+    column: null           # the column with the spelling variants
+    true_levels: null      # how many real categories there are after cleaning
 
 tracking:
   experiment_name: null
