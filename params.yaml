@@ -20,6 +20,20 @@ mlflow:
 train:
   random_state: 42
   test_size: 0.2
+  candidates:
+    - kind: "ridge"
+      params:
+        alpha: 1.0
+    - kind: "random_forest"
+      params:
+        n_estimators: 200
+        max_depth: 8
+        random_state: 42
+    - kind: "gradient_boosting"
+      params:
+        n_estimators: 300
+        learning_rate: 0.05
+        random_state: 42
 
 monitoring:
   psi_bins: 10
