@@ -41,22 +41,22 @@ tracking:
   experiment_name: "mp143-ev-energy"
   best_run_id: "ffdba600789d4aa6813777c8c295fdc4"        # the MLflow run id of your v1 model
   registered_model_name: "mp143-ev-energy-model"
-  champion_version: 1
+  champion_version: 2
 
 monitoring:
   psi:                     # cleaned train.csv vs later.csv, 10 bins
-    battery_start_pct: null
-    session_minutes: null
-    charger_kw: null
-    temp_c: null
-    vehicle_age_yr: null
-    queue_before: null
-  most_drifted_feature: null
+    battery_start_pct: 0.0577
+    session_minutes: 0.0299
+    charger_kw: 5.3067
+    temp_c: 0.0445
+    vehicle_age_yr: 0.0324
+    queue_before: 0.0439
+  most_drifted_feature: "charger_kw"
   mae_by_group:            # v1 on later.csv, per value of station_type
-    'Mall': null
-    'Highway': null
-    'Residential': null
-  worst_served_group: null
-  mae_v1_on_check: null    # v1 on the last 30% of later.csv (by date)
-  mae_v2_on_check: null    # v2 on the same rows
-  decision: null           # promote or keep
+    'Mall': 17.5834
+    'Highway': 4.0357
+    'Residential': 3.5097
+  worst_served_group: "Mall"
+  mae_v1_on_check: 7.2629    # v1 on the last 30% of later.csv (by date)
+  mae_v2_on_check: 4.7468  # v2 on the same rows
+  decision: "promote"           # promote or keep

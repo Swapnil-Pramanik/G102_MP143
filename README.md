@@ -87,7 +87,12 @@ app/
   main.py                      FastAPI: SessionIn schema, GET /health, POST /predict;
                                model loaded lazily via get_model() (tests can set app.main.MODEL)
 tests/
-  __init__.py                  TODO: 3+ test_*.py, one with TestClient
+  __init__.py
+  test_api.py                  FastAPI TestClient: /health, /predict, 422 rules
+  test_cleaning.py             one hand-made mistake per test → clean() removes it
+  test_train.py                train.py on tiny hand-made data (no CSVs, no MLflow server)
+  test_monitor.py              PSI (same ≈ 0, shift > 0.25, NaN-safe), promotion rule
+                               incl. exact-10% boundary, 70/30 date split of later.csv
 models/                        model.joblib (champion) goes here
 predictions/                   holdout_predictions.csv goes here
 reports/findings.yaml          the marking form (fill every value)
